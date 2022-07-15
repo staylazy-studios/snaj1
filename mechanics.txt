@@ -1,0 +1,11 @@
+DAD:
+Starts in: Smoking Room
+Roams in: Dining Room, Baby Room, Main Hall, Right Hall, Break Room
+Ends at: Left Hall
+Interval: uniform(*AI_LEVEL_CONFIG[DAD_LEVEL])
+
+MUM:
+Starts in: Kitchen
+Roams in: Dining Room, Baby Room, Smoking Room, Main Hall, Break Room, Left Hall, East Hall
+Ends at: Right Hall
+Interval: uniform(*AI_LEVEL_CONFIG[MUM_LEVEL])
