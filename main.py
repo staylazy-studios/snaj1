@@ -123,7 +123,7 @@ for k, v in file_config.items():
 class MyGame(ShowBase):
     def __init__(self):
         super().__init__()
-        #self.set_background_color(0, 0, 0, 0)
+        self.set_background_color(0, 0, 0, 0)
         self.pipeline = simplepbr.init()
         self.disableMouse()
         #self.oobe()
