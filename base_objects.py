@@ -4,9 +4,9 @@ from direct.actor.Actor import Actor
 from random import  uniform, choice
 import GlobalInstance
 
-getModel = lambda f: "./assets/models/"+f
-getGui   = lambda f: "./assets/gui/"+f
-getSound = lambda f: "./assets/sounds/"+f
+getModel = lambda f: "./new_assets/gltfs/"+f+".glb"
+getGui   = lambda f: "./new_assets/gui/"+f
+getSound = lambda f: "./new_assets/sounds/"+f
 
 AI_LEVEL_CONFIG = ( # Index 0 should be None since levels go from 1 to 10
     None,
@@ -279,13 +279,14 @@ class Battery:
         self.usageImages[0].show()
 
 class DoorButton:
-    def __init__(self, modelFname, cBoxName, cBoxPos, cBoxShape=(0, 0.02, 0.166, 0.166), actorAnims={}, sounds={}, doorActor=None, doorSounds={}, tex={}, plight=None):
-        if actorAnims:
-            self.model = Actor(getModel(modelFname), actorAnims)
+    def __init__(self, modelFname, cBoxName, cBoxPos, cBoxShape=(0, 0.02, 0.166, 0.166), hasAnims=False, sounds={}, doorActor=None, doorSounds={}, tex={}, plight=None, modelPos=(0, 0, 0)):
+        if hasAnims:
+            self.model = Actor(getModel(modelFname))
             self.hasAnims = True
         else:
             self.model = GlobalInstance.GameObject.loader.loadModel(getModel(modelFname))
             self.hasAnims = False
+        self.model.setPos(modelPos)
         self.model.reparentTo(GlobalInstance.GameObject.environment)
 
         cBox = CollisionBox(*cBoxShape)
@@ -316,7 +317,7 @@ class DoorButton:
     def toggle(self, sound=True):
         if self.closed:
             if self.hasAnims:
-                self.model.play("off")
+                self.model.play("up")
             if self.door:
                 self.door.play("open")
             if sound:
@@ -330,7 +331,7 @@ class DoorButton:
                 self.plight.node().setColor((0, 0, 0, 0))
         else:
             if self.hasAnims:
-                self.model.play("on")
+                self.model.play("down")
             if self.door:
                 self.door.play("close")
             if sound:
@@ -345,8 +346,8 @@ class DoorButton:
         self.closed = not self.closed
 
 class Animatronic:
-    def __init__(self, model: dict, anims: dict, sounds: dict, movePattern: tuple, level: int, activeTimes: tuple, attackDoor: str) -> None:
-        self.model = Actor(getModel(model), {k: getModel(v) for k, v in anims.items()})
+    def __init__(self, model: dict, sounds: dict, movePattern: tuple, level: int, activeTimes: tuple, attackDoor: str) -> None:
+        self.model = Actor(getModel(model))
         self.model.reparentTo(GlobalInstance.GameObject.environment)
 
         self.sounds = {}
