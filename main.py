@@ -6,6 +6,7 @@ win-fixed-size 1
 window-title My Game
 show-frame-rate-meter 1
 textures-power-2 none
+fullscreen true
 """
 
 loadPrcFileData("", conf)
@@ -428,7 +429,7 @@ class MyGame(ShowBase):
 
 
         # Accept keyboard events
-        self.accept("f11", self.toggleFullscreen)
+        #self.accept("f11", self.toggleFullscreen)
         self.accept("escape", sys.exit)
         self.accept("mouse1", self.mouseClick)
         self.accept("c", self.toggleCamera)
@@ -594,8 +595,6 @@ class MyGame(ShowBase):
                 intoNp = entry.getIntoNodePath()
                 name = intoNp.getName()
                 button = self.buttonMap[name]
-
-                print(button)
                 
                 if button.door:
                     openAnim = button.door.getAnimControl('open')
