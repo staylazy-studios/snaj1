@@ -131,7 +131,7 @@ class MyGame(ShowBase):
         pl = PointLight("pl")
         pn = self.render.attachNewNode(pl)
         pn.setPos(0, 0, 8)
-        #self.render.setLight(pn)
+        self.render.setLight(pn)
 
         GlobalInstance.GameObject = self
 
@@ -144,7 +144,7 @@ class MyGame(ShowBase):
 
         # Load the button models
         rightDoorButton = DoorButton(
-            "right_door_button",
+            "right_door_button_on",
             "rightDoor",
             (3.67, -1.3, 2.27),
             sounds = filenames['buttonSounds'],
@@ -152,7 +152,9 @@ class MyGame(ShowBase):
                 filenames['rightDoor']
             ),
             #doorSounds = filenames['']
-            tex=filenames['doorTex']
+            #tex=filenames['doorTex']
+            tex=True,
+            model2="right_door_button_off"
         )
         
         rightPlight = PointLight("rightPlight")
@@ -163,16 +165,18 @@ class MyGame(ShowBase):
         self.render.setLight(rightPlnp)
         
         rightLightButton = DoorButton(
-            "right_light_button",
+            "right_light_button_off",
             "rightLight",
             (3.67, -1.3, 1.83),
-            tex=filenames['lightTex'],
-            plight=rightPlnp
+            #tex=filenames['lightTex'],
+            tex=True,
+            plight=rightPlnp,
+            model2="right_light_button_on"
         )
         self.rightLightFlicker = LightFlicker(rightLightButton, filenames['lightSounds'])
 
         leftDoorButton = DoorButton(
-            "left_door_button",
+            "left_door_button_on",
             "leftDoor",
             (-3.64, -1.27, 2.27),
             sounds = filenames['buttonSounds'],
@@ -180,7 +184,9 @@ class MyGame(ShowBase):
                 filenames['leftDoor']
             ),
             #doorSounds = filenames['']
-            tex=filenames['doorTex']
+            #tex=filenames['doorTex']
+            tex=True,
+            model2="left_door_button_off"
         )
 
         leftPlight = PointLight("leftPlight")
@@ -191,11 +197,13 @@ class MyGame(ShowBase):
         self.render.setLight(leftPlnp)
         
         leftLightButton = DoorButton(
-            "left_light_button",
+            "left_light_button_off",
             "leftLight",
             (-3.64, -1.27, 1.83),
-            tex=filenames['lightTex'],
-            plight=leftPlnp
+            #tex=filenames['lightTex'],
+            tex=True,
+            plight=leftPlnp,
+            model2="left_light_button_on"
         )
         self.leftLightFlicker = LightFlicker(leftLightButton, filenames['lightSounds'])
 
@@ -283,8 +291,8 @@ class MyGame(ShowBase):
         plight.attenuation = (0.1, 0, 0.15)
         plnp = self.render.attachNewNode(plight)
         plnp.setPos(0, 0, 5)
-        self.render.setLight(plnp)
-        self.roomLight = plnp
+        #self.render.setLight(plnp)
+        #self.roomLight = plnp
 
         # Doesn't work with simplepbr
         #self.render.setShaderAuto()
@@ -324,7 +332,7 @@ class MyGame(ShowBase):
             lightNode.attenuation = lightMap[1]
             lightPlnp = self.render.attachNewNode(lightNode)
             lightPlnp.setPos(lightMap[2])
-            self.render.setLight(lightPlnp)
+            #self.render.setLight(lightPlnp)
         
 
 
@@ -485,7 +493,7 @@ class MyGame(ShowBase):
         self.gameClock.reset()
         self.battery.reset()
 
-        self.roomLight.node().setColor((0.8, 0.15, 0.0, 0.9))
+        #self.roomLight.node().setColor((0.8, 0.15, 0.0, 0.9))
 
         self.screenTransition.noFade()
         self.gameOverScreen.hide()
