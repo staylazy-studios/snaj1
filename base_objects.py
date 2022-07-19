@@ -279,7 +279,7 @@ class Battery:
         self.usageImages[0].show()
 
 class DoorButton:
-    def __init__(self, modelFname, cBoxName, cBoxPos, cBoxShape=(0, 0.02, 0.166, 0.166), hasAnims=False, sounds={}, doorActor=None, doorSounds={}, tex={}, plight=None, modelPos=(0, 0, 0), model2=False):
+    def __init__(self, modelFname, cBoxName, cBoxPos, cBoxShape=(0, 0.02, 0.166, 0.166), hasAnims=False, sounds={}, doorActor=None, doorSounds={}, tex={}, plight=None, modelPos=(0, 0, 0)):
         if hasAnims:
             self.model = Actor(getModel(modelFname))
             self.hasAnims = True
@@ -296,13 +296,9 @@ class DoorButton:
 
         self.cBoxNp = cBoxNp
 
-        #self.tex = {}
-        self.tex = tex
-        self.model2 = GlobalInstance.GameObject.loader.loadModel(getModel(model2)) if model2 else model2
-        if self.model2: self.model2.reparentTo(GlobalInstance.GameObject.render)
-        #for texName, fileName in tex.items():
-        #    self.tex[texName] = GlobalInstance.GameObject.loader.loadTexture(fileName)
-        #    print(self.tex[texName])
+        self.tex = {}
+        for texName, fileName in tex.items():
+            self.tex[texName] = GlobalInstance.GameObject.loader.loadTexture(fileName)
         
         self.sounds = {}
         for soundName, fileName in sounds.items():
@@ -330,9 +326,8 @@ class DoorButton:
                 if self.door and self.door.sounds:
                     self.door.sounds['open'].play()
             if self.tex:
-                #self.model.setTexture(self.tex['off'], 1)
-                self.model.show()
-                self.model2.hide()
+                for ts in self.model.findAllTextureStages():
+                    self.model.setTexture(ts, self.tex['off'], 1)
             if self.plight:
                 self.plight.node().setColor((0, 0, 0, 0))
         else:
@@ -346,9 +341,8 @@ class DoorButton:
                 if self.door and self.door.sounds:
                     self.door.sounds['close'].play()
             if self.tex:
-                #self.model.setTexture(self.tex['on'], 1)
-                self.model2.show()
-                self.model.hide()
+                for ts in self.model.findAllTextureStages():
+                    self.model.setTexture(ts, self.tex['on'], 1)
             if self.plight:
                 self.plight.node().setColor((0.4, 0.4, 0.4, 1))
         self.closed = not self.closed

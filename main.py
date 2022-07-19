@@ -1,12 +1,13 @@
 from panda3d.core import loadPrcFileData
 
 conf = """
+#win-size 1920 1080
 win-size 1280 720
 win-fixed-size 1
 window-title My Game
 show-frame-rate-meter 1
 textures-power-2 none
-fullscreen true
+#fullscreen true
 """
 
 loadPrcFileData("", conf)
@@ -145,7 +146,7 @@ class MyGame(ShowBase):
 
         # Load the button models
         rightDoorButton = DoorButton(
-            "right_door_button_on",
+            "right_door_button",
             "rightDoor",
             (3.67, -1.3, 2.27),
             sounds = filenames['buttonSounds'],
@@ -153,9 +154,7 @@ class MyGame(ShowBase):
                 filenames['rightDoor']
             ),
             #doorSounds = filenames['']
-            #tex=filenames['doorTex']
-            tex=True,
-            model2="right_door_button_off"
+            tex=filenames['doorTex']
         )
         
         rightPlight = PointLight("rightPlight")
@@ -166,18 +165,16 @@ class MyGame(ShowBase):
         self.render.setLight(rightPlnp)
         
         rightLightButton = DoorButton(
-            "right_light_button_off",
+            "right_light_button",
             "rightLight",
             (3.67, -1.3, 1.83),
-            #tex=filenames['lightTex'],
-            tex=True,
-            plight=rightPlnp,
-            model2="right_light_button_on"
+            tex=filenames['lightTex'],
+            plight=rightPlnp
         )
         self.rightLightFlicker = LightFlicker(rightLightButton, filenames['lightSounds'])
 
         leftDoorButton = DoorButton(
-            "left_door_button_on",
+            "left_door_button",
             "leftDoor",
             (-3.64, -1.27, 2.27),
             sounds = filenames['buttonSounds'],
@@ -185,9 +182,7 @@ class MyGame(ShowBase):
                 filenames['leftDoor']
             ),
             #doorSounds = filenames['']
-            #tex=filenames['doorTex']
-            tex=True,
-            model2="left_door_button_off"
+            tex=filenames['doorTex']
         )
 
         leftPlight = PointLight("leftPlight")
@@ -198,13 +193,11 @@ class MyGame(ShowBase):
         self.render.setLight(leftPlnp)
         
         leftLightButton = DoorButton(
-            "left_light_button_off",
+            "left_light_button",
             "leftLight",
             (-3.64, -1.27, 1.83),
-            #tex=filenames['lightTex'],
-            tex=True,
+            tex=filenames['lightTex'],
             plight=leftPlnp,
-            model2="left_light_button_on"
         )
         self.leftLightFlicker = LightFlicker(leftLightButton, filenames['lightSounds'])
 
