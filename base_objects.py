@@ -8,7 +8,7 @@ getModel = lambda f: "./new_assets/gltfs/"+f+".glb"
 getGui   = lambda f: "./new_assets/gui/"+f
 getSound = lambda f: "./new_assets/sounds/"+f
 
-AI_LEVEL_CONFIG = ( # Index 0 should be None since levels go from 1 to 10
+AI_LEVEL_CONFIG = ( # Index 0 should be None since levels go from 1 to 10. Just for readability
     None,
     (43, 50),
     (36, 43),
@@ -347,6 +347,8 @@ class DoorButton:
                 self.plight.node().setColor((0.4, 0.4, 0.4, 1))
         self.closed = not self.closed
 
+
+
 class Animatronic:
     def __init__(self, model: dict, sounds: dict, movePattern: tuple, level: int, activeTimes: tuple, attackDoor: str) -> None:
         self.model = Actor(getModel(model))
@@ -401,3 +403,76 @@ class Animatronic:
             self.lastRoom = roomNext[0]
 
             self.timer.reset(uniform(*AI_LEVEL_CONFIG[self.level]))
+
+"""
+DAD_LEVEL = 9
+DAD_MOVEPATTERN = (
+    # The first room. Will not come back here
+    ("Smoking Room", (-5, 22, 0), (0, 0, 0)),
+    # These are the rooms which dad moves around randomly before going to the last room
+    ("Dining Room", (-8, 12, 0), (0, 0, 0)),
+    ("Baby Room", (-14, 7, 0), (0, 0, 0)),
+    ("Right Hall", (5, 5, 0), (0, 0, 0)),
+    ("Main Hall", (5, 9, 0), (0, 0, 0)),
+    ("Break Room", (2, 5, 0), (0, 0, 0)),
+    # The last room. After this room is when dad attacks the player. Unless the player closes the left door
+    # This also has information about the jumpscare, camera pos, hpr & dad pos, hpr
+    ("Left Hall", (-5, 5, 0), (0, 0, 0), (1, 0, 2.5), (90, -10, 0), (-3.5, 0, 0), (90, 0, 0)),
+)
+DAD_MOVEMENT_TIME = (12, 1, 2, 3, 4, 5, 6, 7)
+
+AI_LEVEL_CONFIG = ( # Index 0 should be None since levels go from 1 to 10. Just for readability
+    None,
+    (43, 50),
+    (36, 43),
+    (30, 36),
+    (24, 30),
+    (19, 24),
+    (14, 19),
+    (10, 14),
+    (6, 10),
+    (3, 6),
+    (0, 3),
+)
+
+"""
+DAD_MOVEMENT = {
+    "Night 1": {
+        "S: start room": {
+            "room": ("Smoking Room", (-5, 22, 0), (0, 0, 0)),
+            "next": ("1: dining room",)
+        },
+        "1: dining room": {
+            "room": ("Dining Room", (-8, 12, 0), (0, 0, 0)),
+            "next": ("2: baby room", "2: main hall")
+        },
+        "2: baby room": {
+            "room": ("Baby Room", (-14, 7, 0), (0, 0, 0)),
+            "next": ("1: dining room", "3: left hall")
+        },
+        "2: main hall": {
+            "room": ("Main Hall", (5, 9, 0), (0, 0, 0)),
+            "next": ("1: dining room", "3: break room")
+        },
+        "3: left hall": {
+            "room": ("Left Hall", (-5, 5, 0), (0, 0, 0)),
+            "next": ("2: baby room", "F: left hall")
+        },
+        "3: break room": {
+            "room": ("Break Room", (2, 5, 0), (0, 0, 0)),
+            "next": ("2: main hall", "F: break room")
+        },
+        "F: left hall": {
+            "room": ("Left Hall", (-5, 5, 0), (0, 0, 0)),
+            "next": ("1: dining room", "2: baby room")
+        },
+        "F: break room": {
+            "room": ("Break Room", (2, 5, 0), (0, 0, 0)),
+            "next": ("1: dining room", "2: main hall")
+        }
+    }
+}
+
+"""
+random.choices( next_rooms, range(1, len(next_rooms)+1) )[0]
+"""
