@@ -29,7 +29,7 @@ import sys
 
 import simplepbr
 
-DAD_LEVEL = 9
+DAD_LEVEL = 8
 DAD_MOVEPATTERN = (
     # The first room. Will not come back here
     ("Smoking Room", (-5, 22, 0), (0, 0, 0)),
@@ -59,7 +59,7 @@ MUM_MOVEPATTERN = (
 
     ("Right Hall", (5, 5, 0), (0, 0, 0), (-1, 0, 2.5), (-90, -10, 0), (3.5, 0, 0), (-90, 0, 0)),
 )
-MUM_MOVEMENT_TIME = (3, 4, 5, 6, 7)
+MUM_MOVEMENT_TIME = (5, 6, 7)
 
 NIGHT = 1
 
@@ -135,7 +135,8 @@ class MyGame(ShowBase):
         pn.setPos(0, 0, 8)
         self.render.setLight(pn)
 
-        GlobalInstance.GameObject = self
+        self.night = NIGHT
+        GlobalInstance.GameObject['base'] = self
 
         # Load the environment model and various door/window models
         self.environment = self.loader.loadModel(getModel("map"))
@@ -248,25 +249,26 @@ class MyGame(ShowBase):
 
         # Animatronics
 
-        self.dad = Animatronic(
+        self.dad = Character(
             "dad",
-            {"jump": "moan.ogg"},
-            DAD_MOVEPATTERN,
+            #{"jump": "moan.ogg"},
+            {"jumpscare": "jully_jumpscare.ogg"},
+            DAD_MOVEMENT,
             DAD_LEVEL,
-            DAD_MOVEMENT_TIME,
-            'leftDoor',
+            DAD_MOVEMENT_TIME
         )
 
         #self.dad.movePattern
 
 
-        self.mum = Animatronic(
+        self.mum = Character(
             "mum",
-            {"jump": "moan.ogg"},
-            MUM_MOVEPATTERN,
+            #{"jump": "moan.ogg"},
+            {"jumpscare": "jully_jumpscare.ogg"},
+            #MUM_MOVEPATTERN,
+            DAD_MOVEMENT,
             MUM_LEVEL,
-            MUM_MOVEMENT_TIME,
-            'rightDoor',
+            MUM_MOVEMENT_TIME
         )
 
         #self.mum.movePattern
@@ -422,7 +424,7 @@ class MyGame(ShowBase):
 
 
         # Accept keyboard events
-        #self.accept("f11", self.toggleFullscreen)
+        self.accept("f11", self.toggleFullscreen)
         self.accept("escape", sys.exit)
         self.accept("mouse1", self.mouseClick)
         self.accept("c", self.toggleCamera)
@@ -684,45 +686,10 @@ class MyGame(ShowBase):
         self.leftLightFlicker.update()
         self.rightLightFlicker.update()
 
-        if self.dad.update(self.gameClock.timeNow, self.stompingNoise, self.onCams, self.lastCam, self.camStaticVid, self.buttonMap):
-            self.gameOver(self.dad)
-        if self.mum.update(self.gameClock.timeNow, self.stompingNoise, self.onCams, self.lastCam, self.camStaticVid, self.buttonMap):
-            self.gameOver(self.mum)
+        self.dad.update()
+        self.mum.update()
 
         return task.cont
-
-    def gameOver(self, enemy: Animatronic):
-        if self.onCams:
-            self.toggleCamera()
-        if self.inGame:
-            self.toggleIngame()
-        self.isGameOver = True
-        self.music.stop()
-        self.weirdNoise.stop()
-        self.camStaticVid.stop()
-        self.cursor.hide()
-        self.cursorHover.hide()
-        self.leftLightFlicker.stop()
-        self.rightLightFlicker.stop()
-        self.gameClock.hide()
-        self.battery.hide()
-
-        camPos, camHpr, enemyPos, enemyHpr = enemy.movePattern[-1][3:]
-        self.camera.setHpr(*camHpr)
-        self.camera.setPos(*camPos)
-        enemy.model.setPos(*enemyPos)
-        enemy.model.setHpr(*enemyHpr)
-        enemy.model.stop()
-        enemy.model.play("jumpscare")
-
-        if(self.gameOverScreen.isHidden()):
-            Sequence(Func(self.gameOverScreen.setAlphaScale,0.0),Func(self.gameOverScreen.show),LerpFunctionInterval(self.gameOverScreen.setAlphaScale,toData=1.0,fromData=0.0,duration=5.0)).start()
-
-        #self.screenTransition.fadeOut(5)
-
-        #self.gameOverText.show()
-
-        self.taskMgr.doMethodLater(5, self.start, "start", extraArgs=[])
         
 
 
