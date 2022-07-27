@@ -43,9 +43,11 @@ DAD_MOVEPATTERN = (
     # This also has information about the jumpscare, camera pos, hpr & dad pos, hpr
     ("Left Hall", (-5, 5, 0), (0, 0, 0), (1, 0, 2.5), (90, -10, 0), (-3.5, 0, 0), (90, 0, 0)),
 )
-DAD_MOVEMENT_TIME = (12, 1, 2, 3, 4, 5, 6, 7)
+#DAD_MOVEMENT_TIME = (12, 1, 2, 3, 4, 5, 6, 7)
+DAD_MOVEMENT_TIME = (3, 4, 5, 6, 7)
 
-MUM_LEVEL = 3
+#MUM_LEVEL = 3
+MUM_LEVEL = 9
 MUM_MOVEPATTERN = (
     ("Kitchen", (4, 14, 0), (0, 0, 0)),
 
@@ -59,7 +61,8 @@ MUM_MOVEPATTERN = (
 
     ("Right Hall", (5, 5, 0), (0, 0, 0), (-1, 0, 2.5), (-90, -10, 0), (3.5, 0, 0), (-90, 0, 0)),
 )
-MUM_MOVEMENT_TIME = (5, 6, 7)
+#MUM_MOVEMENT_TIME = (5, 6, 7)
+MUM_MOVEMENT_TIME = (12, 1, 2, 3, 4, 5, 6, 7)
 
 NIGHT = 1
 
@@ -266,7 +269,7 @@ class MyGame(ShowBase):
             #{"jump": "moan.ogg"},
             {"jumpscare": "jully_jumpscare.ogg"},
             #MUM_MOVEPATTERN,
-            DAD_MOVEMENT,
+            MUM_MOVEMENT,
             MUM_LEVEL,
             MUM_MOVEMENT_TIME
         )

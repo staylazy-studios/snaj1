@@ -406,8 +406,8 @@ class Character:
                 if not GI['base'].buttonMap[self.movement[self.stage]["door"]].closed:
                     return self.gameOver()
                 self.finalTimerIndex += 1
-                if self.finalTimerIndex != len(self.movement[self.stage]["wait"]["jumps"]):
-                    self.timer.reset(self.movement[self.stage]["wait"]["jumps"][self.finalTimerIndex])
+                if self.finalTimerIndex != len(self.movement[self.stage]["jumps"]):
+                    self.timer.reset(self.movement[self.stage]["jumps"][self.finalTimerIndex])
         
         if self.flashTimer.timeIsUp():
             pass
@@ -427,12 +427,15 @@ class Character:
         self.model.setHpr(hpr)
         
         if self.stage.startswith('F'):
-            self.flashTimer.reset(self.movement[self.stage]["wait"]["flash"])
-            self.timer.reset(self.movement[self.stage]["wait"]["jumps"][self.finalTimerIndex])
+            self.flashTimer.reset(self.movement[self.stage]["flash"])
+            self.timer.reset(self.movement[self.stage]["jumps"][self.finalTimerIndex])
         else:
+            self.flashTimer.pause()
             self.timer.reset(uniform(*AI_LEVEL_CONFIG[self.level]))
     
     def gameOver(self):
+        if GI['base'].isGameOver:
+            return
         if GI['base'].onCams:
             GI['base'].toggleCamera()
         if GI['base'].inGame:
@@ -448,8 +451,8 @@ class Character:
         GI['base'].gameClock.hide()
         GI['base'].battery.hide()
 
-        camPos, camHpr = (1, 0, 2.5), (90, -10, 0)
-        pos, hpr = (-3.5, 0, 0), (90, 0, 0)
+        camPos, camHpr = self.movement[self.stage]["camPosHpr"]
+        pos, hpr = self.movement[self.stage]["posHpr"]
         GI['base'].camera.setHpr(camHpr)
         GI['base'].camera.setPos(camPos)
         self.model.setPos(pos)
@@ -495,22 +498,60 @@ DAD_MOVEMENT = {
             "next": ("2: main hall", "F: break room")
         },
         "F: left hall": {
-            "door": "leftDoor",
             "room": ("Left Hall", (-5, 5, 0), (0, 0, 0)),
             "next": ("1: dining room", "2: baby room"),
-            "wait": {
-                "flash": 5,
-                "jumps": (5, 4, 6)
-            }
+            "door": "leftDoor",
+            "flash": 5,
+            "jumps": (5, 4, 6),
+            "posHpr": ((-3.5, 0, 0), (90, 0, 0)),
+            "camPosHpr": ((1, 0, 2.5), (90, -10, 0))
         },
         "F: break room": {
-            "door": "rollerDoor",
             "room": ("Break Room", (2, 5, 0), (0, 0, 0)),
             "next": ("1: dining room", "2: main hall"),
-            "wait": {
-                "flash": 5,
-                "jumps": (5, 4, 6)
-            }
+            "door": "rollerDoor",
+            "flash": 5,
+            "jumps": (5, 4, 6),
+            "posHpr": ((0.9, 2.3, 0.9), (-0.2, 0, 0)),
+            "camPosHpr": ((-2.2, -3.3, 2.8), (-30, 85, 0))
+        }
+    }
+}
+
+MUM_MOVEMENT = {
+    1: {
+        "S: start room": {
+            "room": ("Kitchen", (4, 14, 0), (0, 0, 0)),
+            "next": ("1: dining room",)
+        },
+        "1: dining room": {
+            "room": ("Dining Room", (-5, 16, 0), (0, 0, 0)),
+            "next": ("2: dining room", "2: main hall")
+        },
+        "2: dining room": {
+            "room": ("Dining Room", (-1, 11, 0), (0, 0, 0)),
+            "next": ("3: left hall", "2: main hall")
+        },
+        "2: main hall": {
+            "room": ("Main Hall", (2, 9, 0), (0, 0, 0)),
+            "next": ("1: dining room", "2: dining room", "3: east hall")
+        },
+        "3: left hall": {
+            "room": ("Left Hall", (-5, 0, 0), (90, 0, 0)),
+            "next": ("2: dining room", "1: dining room")
+        },
+        "3: east hall": {
+            "room": ("East Hall", (9.5, 4.5, 0), (0.7, 0, 0)),
+            "next": ("F: right hall",)
+        },
+        "F: right hall": {
+            "room": ("Right Hall", (5, 5, 0), (0, 0, 0)),
+            "next": ("2: main hall", "2: dining room"),
+            "door": "rightDoor",
+            "flash": 8,
+            "jumps": (8, 4, 5),
+            "posHpr": ((3.5, 0, 0), (-90, 0, 0)),
+            "camPosHpr": ((-1, 0, 2.5), (-90, -10, 0))
         }
     }
 }
