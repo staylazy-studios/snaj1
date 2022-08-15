@@ -458,6 +458,7 @@ class Character:
         self.model.setPos(pos)
         self.model.setHpr(hpr)
         self.model.stop()
+        GI['base'].camModel.play("shake")
         self.model.play("jumpscare")
         self.sounds['jumpscare'].play()
 

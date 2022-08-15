@@ -351,6 +351,13 @@ class MyGame(ShowBase):
         self.cTrav.traverse(self.render)
 
 
+        # camModel is only used for camera animation. Use self.camera for camera manipulation
+        self.camModel = Actor(getModel("camera"))
+        self.camModel.reparentTo(self.render)
+        joint = self.camModel.exposeJoint(None, "modelRoot", "Bone")
+        self.camera.reparentTo(joint)
+
+
         # Puts the cursor image onscreen
         self.cursor = OnscreenImage(getGui("cursor.png"), scale=0.01)
         self.cursor.setTransparency(TransparencyAttrib.MAlpha)
@@ -442,6 +449,7 @@ class MyGame(ShowBase):
     def start(self):
         self.camera.setPos(0, 0, 2.5)
         self.camera.setHpr(0, 0, 0)
+        self.camModel.pose("shake", 0)
 
         # security camera controls
         self.camPos = {
