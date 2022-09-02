@@ -382,6 +382,7 @@ class Character:
     
     def start(self, newLevel: int=None, newActiveTimes: int=None) -> None:
         self.movement = self.mechanics[GI['base'].night]
+        self.model.pose("jumpscare", 0)
 
         self.model.setPos(self.movement["S: start room"]["room"][1])
         self.model.setHpr(self.movement["S: start room"]["room"][2])
