@@ -139,6 +139,7 @@ class MyGame(ShowBase):
         self.render.setLight(pn)
 
         self.night = NIGHT
+        GlobalInstance.GameObject['NIGHT'] = NIGHT
         GlobalInstance.GameObject['base'] = self
 
         # Load the environment model and various door/window models
@@ -280,6 +281,7 @@ class MyGame(ShowBase):
         self.joshNoise = self.loader.loadSfx(getSound("oh_no.ogg"))
         self.plsEnemies = self.loader.loadSfx(getSound("pls_enemies.ogg"))
         self.weirdNoise = self.loader.loadSfx(getSound("weird_noise.ogg"))
+        self.letsGo = self.loader.loadSfx(getSound("lets_go.ogg"))
         self.weirdNoiseTimer = Timer(randint(10,100))
 
         self.stompingNoise = self.loader.loadSfx(getSound("fast_stomping.ogg"))
@@ -374,6 +376,8 @@ class MyGame(ShowBase):
         self.screenTransition = Transitions(self.loader)
         self.gameOverScreen = OnscreenImage(getGui("game_over_screen.png"), scale=(1.8, 0, 1), parent=self.aspect2d)
         self.gameOverScreen.setTransparency(TransparencyAttrib.MAlpha)
+        self.nightOverScreen = OnscreenImage(getGui("night_over_screen.png"), scale=(1.8, 0, 1), parent=self.aspect2d)
+        self.nightOverScreen.setTransparency(TransparencyAttrib.MAlpha)
 
         self.mapFrame = DirectFrame(
             frameSize = (-0.5, 0.5, -0.5, 0.5),
@@ -504,6 +508,7 @@ class MyGame(ShowBase):
 
         self.screenTransition.noFade()
         self.gameOverScreen.hide()
+        self.nightOverScreen.hide()
 
         # In-game variables
         self.inGame = False
@@ -690,7 +695,6 @@ class MyGame(ShowBase):
 
 
 
-        self.gameClock.update()
         self.battery.update()
 
         self.camStaticVid.update()
@@ -699,6 +703,8 @@ class MyGame(ShowBase):
 
         self.dad.update()
         self.mum.update()
+
+        self.gameClock.update()
 
         return task.cont
         

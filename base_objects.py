@@ -26,6 +26,53 @@ AI_LEVEL_CONFIG = ( # Index 0 should be None since levels go from 1 to 10. Just 
 )
 
 
+def resetLevel(screen, self=None, time=5):
+    if GI['base'].isGameOver:
+        return
+    if GI['base'].onCams:
+        GI['base'].toggleCamera()
+    if GI['base'].inGame:
+        GI['base'].toggleIngame()
+    GI['base'].isGameOver = True
+    GI['base'].music.stop()
+    GI['base'].weirdNoise.stop()
+    GI['base'].letsGo.stop()
+    GI['base'].camStaticVid.stop()
+    GI['base'].cursor.hide()
+    GI['base'].cursorHover.hide()
+    GI['base'].leftLightFlicker.stop()
+    GI['base'].rightLightFlicker.stop()
+    GI['base'].gameClock.hide()
+    GI['base'].battery.hide()
+
+    if screen == 'gameover':
+        camPos, camHpr = self.movement[self.stage]["camPosHpr"]
+        pos, hpr = self.movement[self.stage]["posHpr"]
+        GI['base'].camera.setHpr(camHpr)
+        GI['base'].camera.setPos(camPos)
+        self.model.setPos(pos)
+        self.model.setHpr(hpr)
+        self.model.stop()
+        GI['base'].camModel.play("shake")
+        self.model.play("jumpscare")
+        self.sounds['jumpscare'].play()
+
+        image = GI['base'].gameOverScreen
+    elif screen == 'nightover':
+        GI['NIGHT'] += 1
+        GI['base'].letsGo.play()
+        image = GI['base'].nightOverScreen
+
+    if image.isHidden():
+        Sequence(Func(image.setAlphaScale,0.0),Func(image.show),LerpFunctionInterval(image.setAlphaScale,toData=1.0,fromData=0.0,duration=5.0)).start()
+
+    #YAHA.screenTransition.fadeOut(5)
+
+    #YAHA.gameOverText.show()
+
+    GI['base'].taskMgr.doMethodLater(time, GI['base'].start, "start", extraArgs=[])
+
+
 class Timer:
     def __init__(self, seconds):
         self.startAt = GI['base'].taskMgr.globalClock.getFrameTime()
@@ -131,7 +178,7 @@ class LightFlicker:
                 self.button.toggle()
 
 class Clock:
-    startAt = 12
+    startAt = 6
     endAt = 7
     NIGHT = None
 
@@ -166,6 +213,8 @@ class Clock:
                 self.timeNow = 1
             else:
                 self.timeNow += 1
+            if self.timeNow == self.endAt:
+                return resetLevel('nightover', time=10)
             
             self.text.node().setText(self.displayTime())
             self.timer.reset()
@@ -435,42 +484,7 @@ class Character:
             self.timer.reset(uniform(*AI_LEVEL_CONFIG[self.level]))
     
     def gameOver(self):
-        if GI['base'].isGameOver:
-            return
-        if GI['base'].onCams:
-            GI['base'].toggleCamera()
-        if GI['base'].inGame:
-            GI['base'].toggleIngame()
-        GI['base'].isGameOver = True
-        GI['base'].music.stop()
-        GI['base'].weirdNoise.stop()
-        GI['base'].camStaticVid.stop()
-        GI['base'].cursor.hide()
-        GI['base'].cursorHover.hide()
-        GI['base'].leftLightFlicker.stop()
-        GI['base'].rightLightFlicker.stop()
-        GI['base'].gameClock.hide()
-        GI['base'].battery.hide()
-
-        camPos, camHpr = self.movement[self.stage]["camPosHpr"]
-        pos, hpr = self.movement[self.stage]["posHpr"]
-        GI['base'].camera.setHpr(camHpr)
-        GI['base'].camera.setPos(camPos)
-        self.model.setPos(pos)
-        self.model.setHpr(hpr)
-        self.model.stop()
-        GI['base'].camModel.play("shake")
-        self.model.play("jumpscare")
-        self.sounds['jumpscare'].play()
-
-        if(GI['base'].gameOverScreen.isHidden()):
-            Sequence(Func(GI['base'].gameOverScreen.setAlphaScale,0.0),Func(GI['base'].gameOverScreen.show),LerpFunctionInterval(GI['base'].gameOverScreen.setAlphaScale,toData=1.0,fromData=0.0,duration=5.0)).start()
-
-        #YAHA.screenTransition.fadeOut(5)
-
-        #YAHA.gameOverText.show()
-
-        GI['base'].taskMgr.doMethodLater(5, GI['base'].start, "start", extraArgs=[])
+        resetLevel('gameover', self)
 
 
 DAD_MOVEMENT = {
