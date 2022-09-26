@@ -180,7 +180,6 @@ class LightFlicker:
 class Clock:
     startAt = 6
     endAt = 7
-    NIGHT = None
 
     def __init__(self):
         self.timeNow = self.startAt
@@ -200,7 +199,7 @@ class Clock:
         textNode = TextNode('night')
         textNode.setFont(font)
         textNode.setAlign(TextNode.ACenter)
-        textNode.setText(f"Night {self.NIGHT}")
+        textNode.setText(f"Night {GI['NIGHT']}")
         self.nightText = GI['base'].aspect2d.attachNewNode(textNode)
         self.nightText.setScale(0.1)
         self.nightText.setPos(-1.6, 0, 0.7)
@@ -224,6 +223,7 @@ class Clock:
         self.timer.reset()
 
         self.text.node().setText(self.displayTime())
+        self.nightText.node().setText(f"Night {GI['NIGHT']}")
 
         self.show()
     
@@ -430,7 +430,7 @@ class Character:
         self.flashTimer = Timer(0)
     
     def start(self, newLevel: int=None, newActiveTimes: int=None) -> None:
-        self.movement = self.mechanics[GI['base'].night]
+        self.movement = self.mechanics[GI['NIGHT']]
         self.model.pose("jumpscare", 0)
 
         self.model.setPos(self.movement["S: start room"]["room"][1])
@@ -443,8 +443,7 @@ class Character:
         self.flashTimer.pause()
         self.finalTimerIndex = 0
     
-    def update(self) -> bool:
-        """ returns true if Character has attacked the player """
+    def update(self):
         if self.stage.startswith('F'): # means it's at its final stage.
             if self.movement[self.stage]["door"] == "leftDoor" or self.movement[self.stage]["door"] == "rightDoor":
                 lightDoor = GI['base'].buttonMap[self.movement[self.stage]["door"][0:-4]+"Light"]

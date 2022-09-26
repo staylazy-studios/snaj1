@@ -138,15 +138,12 @@ class MyGame(ShowBase):
         pn.setPos(0, 0, 8)
         self.render.setLight(pn)
 
-        self.night = NIGHT
         GlobalInstance.GameObject['NIGHT'] = NIGHT
         GlobalInstance.GameObject['base'] = self
 
         # Load the environment model and various door/window models
         self.environment = self.loader.loadModel(getModel("map"))
         self.environment.reparentTo(self.render)
-
-        Clock.NIGHT = NIGHT
 
 
         # Load the button models
