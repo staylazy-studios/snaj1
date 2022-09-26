@@ -1,13 +1,11 @@
 from panda3d.core import loadPrcFileData
 
 conf = """
-#win-size 1920 1080
 win-size 1280 720
 win-fixed-size 1
 window-title My Game
 show-frame-rate-meter 1
 textures-power-2 none
-#fullscreen true
 """
 
 loadPrcFileData("", conf)
@@ -21,15 +19,14 @@ from direct.gui.OnscreenText import OnscreenText
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.DirectGui import DirectButton, DGG, DirectFrame
 from direct.showbase.Transitions import Transitions
-from panda3d.core import PointLight, CollisionNode, CollisionTraverser, CollisionHandlerQueue, CollisionSegment, WindowProperties, TransparencyAttrib, TextNode
+from panda3d.core import PointLight, Spotlight, PerspectiveLens, CollisionNode, CollisionTraverser, CollisionHandlerQueue, CollisionSegment, WindowProperties, TransparencyAttrib, TextNode
 from random import random, randint
 import GlobalInstance
 from base_objects import *
 import sys
 
-import simplepbr
 
-DAD_LEVEL = 8
+DAD_LEVEL = 9
 DAD_MOVEPATTERN = (
     # The first room. Will not come back here
     ("Smoking Room", (-5, 22, 0), (0, 0, 0)),
@@ -43,11 +40,9 @@ DAD_MOVEPATTERN = (
     # This also has information about the jumpscare, camera pos, hpr & dad pos, hpr
     ("Left Hall", (-5, 5, 0), (0, 0, 0), (1, 0, 2.5), (90, -10, 0), (-3.5, 0, 0), (90, 0, 0)),
 )
-#DAD_MOVEMENT_TIME = (12, 1, 2, 3, 4, 5, 6, 7)
-DAD_MOVEMENT_TIME = (3, 4, 5, 6, 7)
+DAD_MOVEMENT_TIME = (12, 1, 2, 3, 4, 5, 6, 7)
 
-#MUM_LEVEL = 3
-MUM_LEVEL = 9
+MUM_LEVEL = 3
 MUM_MOVEPATTERN = (
     ("Kitchen", (4, 14, 0), (0, 0, 0)),
 
@@ -61,18 +56,31 @@ MUM_MOVEPATTERN = (
 
     ("Right Hall", (5, 5, 0), (0, 0, 0), (-1, 0, 2.5), (-90, -10, 0), (3.5, 0, 0), (-90, 0, 0)),
 )
-#MUM_MOVEMENT_TIME = (5, 6, 7)
-MUM_MOVEMENT_TIME = (12, 1, 2, 3, 4, 5, 6, 7)
+MUM_MOVEMENT_TIME = (3, 4, 5, 6, 7)
 
 NIGHT = 1
 
-leverPos = (-0.984056, 3.67174, 2.49041)
-
 file_config = {
     'rollerDoor': "roller_door",
+    'rollerDoorAnims': {
+        "open": "roller_door-open",
+        "close": "roller_door-close"
+    },
     'leftDoor': "left_door",
+    'leftDoorAnims': {
+        "open": "left_door-open",
+        "close": "left_door-close"
+    },
     'rightDoor': "right_door",
+    'rightDoorAnims': {
+        "open": "right_door-open",
+        "close": "right_door-close"
+    },
     'window': "window",
+    'windowAnims': {
+        "open": "window-open",
+        "close": "window-close"
+    },
 
     'rollerDoorSounds': {
         "open": "roller_door_open.ogg",
@@ -99,6 +107,15 @@ file_config = {
     'leverSounds': {
         'on': "lever_on.ogg",
         'off': "lever_off.ogg"
+    },
+
+    'rollerLeverAnims': {
+        "on": "roller_lever-on",
+        "off": "roller_lever-off"
+    },
+    'windowLeverAnims': {
+        "on": "window_lever-on",
+        "off": "window_lever-off"
     },
 
     'doorTex': {
@@ -129,21 +146,16 @@ class MyGame(ShowBase):
     def __init__(self):
         super().__init__()
         self.set_background_color(0, 0, 0, 0)
-        self.pipeline = simplepbr.init()
         self.disableMouse()
         #self.oobe()
 
-        pl = PointLight("pl")
-        pn = self.render.attachNewNode(pl)
-        pn.setPos(0, 0, 8)
-        self.render.setLight(pn)
-
-        GlobalInstance.GameObject['NIGHT'] = NIGHT
-        GlobalInstance.GameObject['base'] = self
+        GlobalInstance.GameObject = self
 
         # Load the environment model and various door/window models
         self.environment = self.loader.loadModel(getModel("map"))
         self.environment.reparentTo(self.render)
+
+        Clock.NIGHT = NIGHT
 
 
         # Load the button models
@@ -153,7 +165,8 @@ class MyGame(ShowBase):
             (3.67, -1.3, 2.27),
             sounds = filenames['buttonSounds'],
             doorActor = Actor(
-                filenames['rightDoor']
+                filenames['rightDoor'],
+                filenames['rightDoorAnims']
             ),
             #doorSounds = filenames['']
             tex=filenames['doorTex']
@@ -181,7 +194,8 @@ class MyGame(ShowBase):
             (-3.64, -1.27, 2.27),
             sounds = filenames['buttonSounds'],
             doorActor = Actor(
-                filenames['leftDoor']
+                filenames['leftDoor'],
+                filenames['leftDoorAnims']
             ),
             #doorSounds = filenames['']
             tex=filenames['doorTex']
@@ -199,36 +213,36 @@ class MyGame(ShowBase):
             "leftLight",
             (-3.64, -1.27, 1.83),
             tex=filenames['lightTex'],
-            plight=leftPlnp,
+            plight=leftPlnp
         )
         self.leftLightFlicker = LightFlicker(leftLightButton, filenames['lightSounds'])
 
         rollerLever = DoorButton(
             "roller_lever",
             "rollerDoor",
-            (0.37, 0, 0.07),
+            (-0.605, 3.7, 2.57),
             (0, 0.14, 0.02, 0.26),
-            True,
+            filenames['rollerLeverAnims'],
             filenames['leverSounds'],
             doorActor = Actor(
-                filenames['rollerDoor']
+                filenames['rollerDoor'],
+                filenames['rollerDoorAnims']
             ),
-            doorSounds = filenames['rollerDoorSounds'],
-            modelPos = leverPos
+            doorSounds = filenames['rollerDoorSounds']
         )
 
         windowLever = DoorButton(
             "window_lever",
             "window",
-            (-0.35, 0, 0.05),
+            (-1.35, 3.7, 2.57),
             (0, 0.14, 0.02, 0.26),
-            True,
+            filenames['windowLeverAnims'],
             filenames['leverSounds'],
             doorActor = Actor(
-                filenames['window']
+                filenames['window'],
+                filenames['windowAnims']
             ),
-            #doorSounds = filenames[''],
-            modelPos = leverPos
+            #doorSounds = filenames['']
         )
 
         self.buttonMap = {
@@ -250,26 +264,27 @@ class MyGame(ShowBase):
 
         # Animatronics
 
-        self.dad = Character(
+        self.dad = Animatronic(
             "dad",
-            #{"jump": "moan.ogg"},
-            {"jumpscare": "jully_jumpscare.ogg"},
-            DAD_MOVEMENT,
+            {"idle": "dad-idle", "jump": "dad-jump"},
+            {"jump": "moan.ogg"},
+            DAD_MOVEPATTERN,
             DAD_LEVEL,
-            DAD_MOVEMENT_TIME
+            DAD_MOVEMENT_TIME,
+            'leftDoor',
         )
 
         #self.dad.movePattern
 
 
-        self.mum = Character(
+        self.mum = Animatronic(
             "mum",
-            #{"jump": "moan.ogg"},
-            {"jumpscare": "jully_jumpscare.ogg"},
-            #MUM_MOVEPATTERN,
-            MUM_MOVEMENT,
+            {"idle": "mum-idle", "jump": "mum-jump"},
+            {"jump": "moan.ogg"},
+            MUM_MOVEPATTERN,
             MUM_LEVEL,
-            MUM_MOVEMENT_TIME
+            MUM_MOVEMENT_TIME,
+            'rightDoor',
         )
 
         #self.mum.movePattern
@@ -278,7 +293,6 @@ class MyGame(ShowBase):
         self.joshNoise = self.loader.loadSfx(getSound("oh_no.ogg"))
         self.plsEnemies = self.loader.loadSfx(getSound("pls_enemies.ogg"))
         self.weirdNoise = self.loader.loadSfx(getSound("weird_noise.ogg"))
-        self.letsGo = self.loader.loadSfx(getSound("lets_go.ogg"))
         self.weirdNoiseTimer = Timer(randint(10,100))
 
         self.stompingNoise = self.loader.loadSfx(getSound("fast_stomping.ogg"))
@@ -289,11 +303,10 @@ class MyGame(ShowBase):
         plight.attenuation = (0.1, 0, 0.15)
         plnp = self.render.attachNewNode(plight)
         plnp.setPos(0, 0, 5)
-        #self.render.setLight(plnp)
-        #self.roomLight = plnp
+        self.render.setLight(plnp)
+        self.roomLight = plnp
 
-        # Doesn't work with simplepbr
-        #self.render.setShaderAuto()
+        self.render.setShaderAuto()
 
 
         
@@ -330,7 +343,7 @@ class MyGame(ShowBase):
             lightNode.attenuation = lightMap[1]
             lightPlnp = self.render.attachNewNode(lightNode)
             lightPlnp.setPos(lightMap[2])
-            #self.render.setLight(lightPlnp)
+            self.render.setLight(lightPlnp)
         
 
 
@@ -350,13 +363,6 @@ class MyGame(ShowBase):
         self.cTrav.traverse(self.render)
 
 
-        # camModel is only used for camera animation. Use self.camera for camera manipulation
-        self.camModel = Actor(getModel("camera"))
-        self.camModel.reparentTo(self.render)
-        joint = self.camModel.exposeJoint(None, "modelRoot", "Bone")
-        self.camera.reparentTo(joint)
-
-
         # Puts the cursor image onscreen
         self.cursor = OnscreenImage(getGui("cursor.png"), scale=0.01)
         self.cursor.setTransparency(TransparencyAttrib.MAlpha)
@@ -373,8 +379,6 @@ class MyGame(ShowBase):
         self.screenTransition = Transitions(self.loader)
         self.gameOverScreen = OnscreenImage(getGui("game_over_screen.png"), scale=(1.8, 0, 1), parent=self.aspect2d)
         self.gameOverScreen.setTransparency(TransparencyAttrib.MAlpha)
-        self.nightOverScreen = OnscreenImage(getGui("night_over_screen.png"), scale=(1.8, 0, 1), parent=self.aspect2d)
-        self.nightOverScreen.setTransparency(TransparencyAttrib.MAlpha)
 
         self.mapFrame = DirectFrame(
             frameSize = (-0.5, 0.5, -0.5, 0.5),
@@ -450,7 +454,6 @@ class MyGame(ShowBase):
     def start(self):
         self.camera.setPos(0, 0, 2.5)
         self.camera.setHpr(0, 0, 0)
-        self.camModel.pose("shake", 0)
 
         # security camera controls
         self.camPos = {
@@ -488,8 +491,8 @@ class MyGame(ShowBase):
         
         self.mum.start()
         
-        #self.dad.model.loop("idle")
-        #self.mum.model.loop("idle")
+        self.dad.model.loop("idle")
+        self.mum.model.loop("idle")
 
         
         self.cursor.show()
@@ -501,11 +504,10 @@ class MyGame(ShowBase):
         self.gameClock.reset()
         self.battery.reset()
 
-        #self.roomLight.node().setColor((0.8, 0.15, 0.0, 0.9))
+        self.roomLight.node().setColor((0.8, 0.15, 0.0, 0.9))
 
         self.screenTransition.noFade()
         self.gameOverScreen.hide()
-        self.nightOverScreen.hide()
 
         # In-game variables
         self.inGame = False
@@ -610,11 +612,11 @@ class MyGame(ShowBase):
                     if openAnim.isPlaying() or closeAnim.isPlaying():
                         return
                 
-                #sparks = ParticleEffect()
-                #sparks.loadConfig(getModel("sparks.ptf"))
-                #sparks.setScale(0.1)
-                #partInt = ParticleInterval(sparks, intoNp, duration=0.2, cleanup=True)
-                #partInt.start()
+                sparks = ParticleEffect()
+                sparks.loadConfig(getModel("sparks.ptf"))
+                sparks.setScale(0.1)
+                partInt = ParticleInterval(sparks, intoNp, duration=0.2, cleanup=True)
+                partInt.start()
                 
                 button.toggle()
         elif self.onCams:
@@ -692,18 +694,52 @@ class MyGame(ShowBase):
 
 
 
+        self.gameClock.update()
         self.battery.update()
 
         self.camStaticVid.update()
         self.leftLightFlicker.update()
         self.rightLightFlicker.update()
 
-        self.dad.update()
-        self.mum.update()
-
-        self.gameClock.update()
+        if self.dad.update(self.gameClock.timeNow, self.stompingNoise, self.onCams, self.lastCam, self.camStaticVid, self.buttonMap):
+            self.gameOver(self.dad)
+        if self.mum.update(self.gameClock.timeNow, self.stompingNoise, self.onCams, self.lastCam, self.camStaticVid, self.buttonMap):
+            self.gameOver(self.mum)
 
         return task.cont
+
+    def gameOver(self, enemy: Animatronic):
+        if self.onCams:
+            self.toggleCamera()
+        if self.inGame:
+            self.toggleIngame()
+        self.isGameOver = True
+        self.music.stop()
+        self.weirdNoise.stop()
+        self.camStaticVid.stop()
+        self.cursor.hide()
+        self.cursorHover.hide()
+        self.leftLightFlicker.stop()
+        self.rightLightFlicker.stop()
+        self.gameClock.hide()
+        self.battery.hide()
+
+        camPos, camHpr, enemyPos, enemyHpr = enemy.movePattern[-1][3:]
+        self.camera.setHpr(*camHpr)
+        self.camera.setPos(*camPos)
+        enemy.model.setPos(*enemyPos)
+        enemy.model.setHpr(*enemyHpr)
+        enemy.model.stop()
+        enemy.model.play("jump")
+
+        if(self.gameOverScreen.isHidden()):
+            Sequence(Func(self.gameOverScreen.setAlphaScale,0.0),Func(self.gameOverScreen.show),LerpFunctionInterval(self.gameOverScreen.setAlphaScale,toData=1.0,fromData=0.0,duration=5.0)).start()
+
+        #self.screenTransition.fadeOut(5)
+
+        #self.gameOverText.show()
+
+        self.taskMgr.doMethodLater(5, self.start, "start", extraArgs=[])
         
 
 

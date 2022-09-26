@@ -4,6 +4,6 @@
 # from GlobalInstance import GameObject
 
 # Put this in MyGame.__init__:
-# GlobalInstance.GameObject['base'] = self
+# GlobalInstance.GameObject = self
 
-GameObject = {}
+GameObject = None
