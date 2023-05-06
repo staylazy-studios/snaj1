@@ -430,7 +430,8 @@ class Character:
         self.flashTimer = Timer(0)
     
     def start(self, newLevel: int=None, newActiveTimes: int=None) -> None:
-        self.movement = self.mechanics[GI['NIGHT']]
+        #self.movement = self.mechanics[GI['NIGHT']]
+        self.movement = self.mechanics[1] # testing night progressions
         self.model.pose("jumpscare", 0)
 
         self.model.setPos(self.movement["S: start room"]["room"][1])

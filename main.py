@@ -67,6 +67,7 @@ MUM_MOVEMENT_TIME = (12, 1, 2, 3, 4, 5, 6, 7)
 NIGHT = 1
 
 leverPos = (-0.984056, 3.67174, 2.49041)
+PITCH_MAX, PITCH_MIN = 10, -20
 
 file_config = {
     'rollerDoor': "roller_door",
@@ -630,7 +631,7 @@ class MyGame(ShowBase):
         if self.isGameOver:
             return task.cont
 
-        if random() < 0.00_001:
+        if random() < 0.00_001: # 0.001% chance
             self.joshNoise.play()
 
         if not self.onCams:
@@ -659,10 +660,10 @@ class MyGame(ShowBase):
             self.rotateH -= dx * dt * 1500
             self.rotateP += dy * dt * 1000
 
-            if self.rotateP > 10:
-                self.rotateP -= self.rotateP - 10
-            elif self.rotateP < -20:
-                self.rotateP -= self.rotateP + 20
+            if self.rotateP > PITCH_MAX:
+                self.rotateP -= self.rotateP - PITCH_MAX
+            elif self.rotateP < PITCH_MIN:
+                self.rotateP -= self.rotateP - PITCH_MIN
 
             self.camera.setH(self.rotateH)
             self.camera.setP(self.rotateP)
